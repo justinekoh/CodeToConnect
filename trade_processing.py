@@ -4,9 +4,7 @@ import requests
 
 def getClientConfig(clientId) -> tuple[float, float] | None:
     # query client config tool for client's commisionDifferenceTolerance and grossAmountDifferenceTolerance
-    # TODO: send http get request to get client config based on clientId
     response = requests.get("http://127.0.0.1:8000/client_configuration_tool/api?client_id=" + clientId)
-    print(response)
     if response.status_code != 200:
         return None
     print(response.json())
@@ -15,7 +13,7 @@ def getClientConfig(clientId) -> tuple[float, float] | None:
 def processUserInput(clientId, commisionDifference, grossAmountDifference) -> bool:
     # query client config tool for client's commisionDifferenceTolerance and grossAmountDifferenceTolerance
     tpl = getClientConfig(clientId)
-    if tpl is None:
+    if tpl[0] is None and tpl[1] is None:
         return False
     commDiffTolerance, grossDiffTolerance = tpl
     return commisionDifference <= commDiffTolerance and grossAmountDifference <= grossDiffTolerance

@@ -16,7 +16,7 @@ def clientConfigChangeRequest(clientConfigId, requesterId, grossAmountToleranceT
                        grossAmountToleranceTo=grossAmountToleranceTo, commisionToleanceTo=commisionToleranceTo, \
                        grossAmountToleranceFrom=None,\
                        commisionToleranceFrom=None, requestId=request.id)
-        return
+        return True
 
     clientConfig = ClientConfigurations.objects.get(id=clientConfigId)
     if clientConfig is None:       
@@ -28,6 +28,7 @@ def clientConfigChangeRequest(clientConfigId, requesterId, grossAmountToleranceT
                       grossAmountToleranceTo=grossAmountToleranceTo, commisionToleranceTo=commisionToleranceTo, \
                       grossAmountToleranceFrom=clientConfig.grossAmountTolerance,\
                      commisionToleranceFrom=clientConfig.commisionTolerance, request_id=request.id)
+    return True
     
 def clientConfigChangeApprove(request, verifier_id):
     # check verifier_id != requeter_id
@@ -41,20 +42,21 @@ def clientConfigChangeApprove(request, verifier_id):
         # creating new client config
         clientConfig = ClientConfigurations.objects.create(name="ClientDummyName", commisionTolerance=request.commisionToleanceTo, grossAmountTolerance=request.grossAmountToleranceTo)
         AuditLogs.objects.create(createdAt=timeNow, statusId=2, requesterId=request.requesterId, clientConfigId_id=clientConfig.id,\
-                      grossAmountToleranceTo=request.grossAmountToleranceTo, commisionToleranceTo=request.commisionToleanceTo, \
+                      grossAmountToleranceTo=request.grossAmountToleranceTo, commisionToleanceTo=request.commisionToleanceTo, \
                       grossAmountToleranceFrom=clientConfig.grossAmountTolerance,\
-                     commisionToleranceFrom=clientConfig.commisionTolerance, request_id=request.id)
-        return
+                     commisionToleranceFrom=clientConfig.commisionTolerance, requestId=request.id)
+        return True
 
     # updating existing client config
     clientConfig = ClientConfigurations.objects.get(id=clientConfigId)
     clientConfig.update(commisionTolerance=request.commisionToleanceTo, grossAmountTolerance=request.grossAmountToleranceTo)
     # create audit log
     AuditLogs.objects.create(createdAt=timeNow, statusId=2, requesterId=request.requesterId, clientConfigId_id=request.clientConfigId,\
-                      grossAmountToleranceTo=request.grossAmountToleranceTo, commisionToleranceTo=request.commisionToleanceTo, \
+                      grossAmountToleranceTo=request.grossAmountToleranceTo, commisionToleanceTo=request.commisionToleanceTo, \
                       grossAmountToleranceFrom=clientConfig.grossAmountTolerance,\
-                     commisionToleranceFrom=clientConfig.commisionTolerance, request_id=request.id)
+                     commisionToleranceFrom=clientConfig.commisionTolerance, requestId=request.id)
     # update client config
+    return True
 
 def clientConfigChangeReject(request):
     # create a audittrail
@@ -62,6 +64,7 @@ def clientConfigChangeReject(request):
 
 def index(request):
     clientConfigChangeRequest(None, 1, 20, 30)
+    clientConfigChangeApprove(request=Requests.objects.get(id=1), verifier_id=2)
     # clientConfigChangeReject(request=Requests.objects.get(id=1))
     return HttpResponse("Hello, world. You're at the polls index.")
 
