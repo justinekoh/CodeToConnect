@@ -35,7 +35,7 @@ class AuditLogs(models.Model):
     id = models.IntegerField(primary_key=True)
     createdAt = models.DateTimeField()
     statusId = models.IntegerField()
-    requestId = models.ForeignKey(Requests, on_delete=models.CASCADE, related_name="audit_logs")
+    requestId = models.IntegerField()
     requesterId = models.ForeignKey(Users, on_delete=models.CASCADE, related_name="requester_audit_logs")
     verifierId = models.ForeignKey(Users, on_delete=models.CASCADE, related_name="verifier_audit_logs")
     clientConfigId = models.ForeignKey(ClientConfigurations, on_delete=models.CASCADE, related_name="audit_logs")
