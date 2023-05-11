@@ -1,10 +1,36 @@
+from datetime import datetime
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse, HttpRequest
+from django.db import transaction
 
-from client_configuration_tool.models import ClientConfigurations
+from client_configuration_tool.models import ClientConfigurations, AuditLogs, Requests, Users, Roles
 
+@transaction.atomic
+def clientConfigChangeRequest(clientConfigId, requesterId, grossAmountToleranceTo, commisionToleranceTo):
+    timeNow = datetime.now()
+    requestor = Users.objects.get(id=requesterId)
+    if clientConfigId is None:
+        request = Requests.objects.create(requestTime=timeNow, requesterId=requestor, clientConfigId_id=clientConfigId,\
+                      grossAmountToleranceTo=grossAmountToleranceTo, commisionToleanceTo=commisionToleranceTo)
+        AuditLogs.objects.create(createdAt=timeNow, statusId=1, requesterId=requestor, clientConfigId_id=clientConfigId,\
+                       grossAmountToleranceTo=grossAmountToleranceTo, commisionToleanceTo=commisionToleranceTo, \
+                       grossAmountToleranceFrom=None,
+                       commisionToleranceFrom=None, requestId=request.id)
+        return
+
+    clientConfig = ClientConfigurations.objects.get(id=clientConfigId)
+    if clientConfig is None:       
+        raise Exception("Client config not found")
+        
+    request = Requests.objects.create(requestTime=timeNow, requesterId=requestor, clientConfigId_id=clientConfigId,\
+                     grossAmountToleranceTo=grossAmountToleranceTo, commisionToleanceTo=commisionToleranceTo)
+    # AuditLogs.objects.create(createdAt=timeNow, statusId=1, requesterId=requesterId, clientConfigId_id=clientConfigId,\
+    #                   grossAmountToleranceTo=grossAmountToleranceTo, commisionToleranceTo=commisionToleranceTo, \
+    #                   grossAmountToleranceFrom=clientConfig.grossAmountTolerance,\
+    #                  commisionToleranceFrom=clientConfig.commisionTolerance, request_id=request.id)
 
 def index(request):
+    clientConfigChangeRequest(None, 1, 20, 30)
     return HttpResponse("Hello, world. You're at the polls index.")
 
 def api(request: HttpRequest):
