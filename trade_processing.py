@@ -1,11 +1,23 @@
 ## Trade processing engine CLI
 
-def processUserInput(userId, clientId, commisionDifference, grossAmountDifference):
-    pass
+def getClientConfig(clientId) -> tuple[float, float]:
+    # query client config tool for client's commisionDifferenceTolerance and grossAmountDifferenceTolerance
+    return (1.1, 2.1)
+
+def processUserInput(clientId, commisionDifference, grossAmountDifference) -> bool:
+    # query client config tool for client's commisionDifferenceTolerance and grossAmountDifferenceTolerance
+    commDiffTolerance, grossDiffTolerance = getClientConfig(clientId)
+    return commisionDifference <= commDiffTolerance and grossAmountDifference <= grossDiffTolerance
 
 if __name__ == "__main__":
-    userId = input("Enter your user id: ")
-    clientId = input("Enter your client id: ")
-    commisionDifference = input("Enter the commision difference: ")
-    grossAmountDifference = input("Enter the gross amount difference: ")
-    processUserInput(userId, clientId, commisionDifference, grossAmountDifference)
+    while True:
+        clientId = input("Enter your client id or 'q' to quit: ")
+        if clientId == 'q':
+            break
+        commisionDifference = input("Enter the commision difference: ")
+        grossAmountDifference = input("Enter the gross amount difference: ")
+        if processUserInput(clientId, float(commisionDifference), float(grossAmountDifference)):
+            print("Trade accepted")
+        else:
+            print("Trade rejected")
+
