@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse, HttpRequest
 from django.db import transaction
 
-from client_configuration_tool.models import ClientConfigurations, AuditLogs, Requests, Users, Roles
+from client_configuration_tool.models import ClientConfigurations, AuditLogs, Requests, Users
 
 @transaction.atomic
 def clientConfigChangeRequest(clientConfigId, requesterId, grossAmountToleranceTo, commisionToleranceTo):
@@ -29,8 +29,13 @@ def clientConfigChangeRequest(clientConfigId, requesterId, grossAmountToleranceT
     #                   grossAmountToleranceFrom=clientConfig.grossAmountTolerance,\
     #                  commisionToleranceFrom=clientConfig.commisionTolerance, request_id=request.id)
 
+def clientConfigChangeReject(request):
+    # create a audittrail
+    AuditLogs.objects.create(createdAt=datetime.now(), statusId=3, requesterId=request.requesterId, clientConfigId_id=request.clientConfigId)
+
 def index(request):
     clientConfigChangeRequest(None, 1, 20, 30)
+    # clientConfigChangeReject(request=Requests.objects.get(id=1))
     return HttpResponse("Hello, world. You're at the polls index.")
 
 def api(request: HttpRequest):
@@ -40,7 +45,6 @@ def api(request: HttpRequest):
       client  = ClientConfigurations.objects.get(id=client_id)
     except ClientConfigurations.DoesNotExist:
       return JsonResponse({"commission_difference": None, "gross_amount_difference": None})    
-    # client = ClientConfigurations.objects.create(name="Client1", commisionTolerance=30, grossAmountTolerance=20)
     commission_difference_tolerance = client.commisionTolerance
     gross_amount_difference_tolerance = client.grossAmountTolerance
     return JsonResponse({"commission_difference_tolerance": commission_difference_tolerance, "gross_amount_difference_tolerance": gross_amount_difference_tolerance})
