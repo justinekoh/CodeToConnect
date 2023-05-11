@@ -14,7 +14,7 @@ def clientConfigChangeRequest(clientConfigId, requesterId, grossAmountToleranceT
                       grossAmountToleranceTo=grossAmountToleranceTo, commisionToleanceTo=commisionToleranceTo)
         AuditLogs.objects.create(createdAt=timeNow, statusId=1, requesterId=requestor, clientConfigId_id=clientConfigId,\
                        grossAmountToleranceTo=grossAmountToleranceTo, commisionToleanceTo=commisionToleranceTo, \
-                       grossAmountToleranceFrom=None,
+                       grossAmountToleranceFrom=None,\
                        commisionToleranceFrom=None, requestId=request.id)
         return
 
@@ -24,10 +24,37 @@ def clientConfigChangeRequest(clientConfigId, requesterId, grossAmountToleranceT
         
     request = Requests.objects.create(requestTime=timeNow, requesterId=requestor, clientConfigId_id=clientConfigId,\
                      grossAmountToleranceTo=grossAmountToleranceTo, commisionToleanceTo=commisionToleranceTo)
-    # AuditLogs.objects.create(createdAt=timeNow, statusId=1, requesterId=requesterId, clientConfigId_id=clientConfigId,\
-    #                   grossAmountToleranceTo=grossAmountToleranceTo, commisionToleranceTo=commisionToleranceTo, \
-    #                   grossAmountToleranceFrom=clientConfig.grossAmountTolerance,\
-    #                  commisionToleranceFrom=clientConfig.commisionTolerance, request_id=request.id)
+    AuditLogs.objects.create(createdAt=timeNow, statusId=1, requesterId=requesterId, clientConfigId_id=clientConfigId,\
+                      grossAmountToleranceTo=grossAmountToleranceTo, commisionToleranceTo=commisionToleranceTo, \
+                      grossAmountToleranceFrom=clientConfig.grossAmountTolerance,\
+                     commisionToleranceFrom=clientConfig.commisionTolerance, request_id=request.id)
+    
+def clientConfigChangeApprove(request, verifier_id):
+    # check verifier_id != requeter_id
+    requestor_id = request.requesterId
+    if verifier_id == requestor_id:
+        raise Exception("Verifier and requester cannot be same")
+
+    timeNow = datetime.now()
+    clientConfigId = request.clientConfigId
+    if clientConfigId is None:
+        # creating new client config
+        clientConfig = ClientConfigurations.objects.create(name="ClientDummyName", commisionTolerance=request.commisionToleanceTo, grossAmountTolerance=request.grossAmountToleranceTo)
+        AuditLogs.objects.create(createdAt=timeNow, statusId=2, requesterId=request.requesterId, clientConfigId_id=clientConfig.id,\
+                      grossAmountToleranceTo=request.grossAmountToleranceTo, commisionToleranceTo=request.commisionToleanceTo, \
+                      grossAmountToleranceFrom=clientConfig.grossAmountTolerance,\
+                     commisionToleranceFrom=clientConfig.commisionTolerance, request_id=request.id)
+        return
+
+    # updating existing client config
+    clientConfig = ClientConfigurations.objects.get(id=clientConfigId)
+    clientConfig.update(commisionTolerance=request.commisionToleanceTo, grossAmountTolerance=request.grossAmountToleranceTo)
+    # create audit log
+    AuditLogs.objects.create(createdAt=timeNow, statusId=2, requesterId=request.requesterId, clientConfigId_id=request.clientConfigId,\
+                      grossAmountToleranceTo=request.grossAmountToleranceTo, commisionToleranceTo=request.commisionToleanceTo, \
+                      grossAmountToleranceFrom=clientConfig.grossAmountTolerance,\
+                     commisionToleranceFrom=clientConfig.commisionTolerance, request_id=request.id)
+    # update client config
 
 def clientConfigChangeReject(request):
     # create a audittrail
