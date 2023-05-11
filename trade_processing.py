@@ -2,6 +2,7 @@
 
 def getClientConfig(clientId) -> tuple[float, float] | None:
     # query client config tool for client's commisionDifferenceTolerance and grossAmountDifferenceTolerance
+    # TODO: send http get request to get client config based on clientId
     return (1.1, 2.1)
 
 def processUserInput(clientId, commisionDifference, grossAmountDifference) -> bool:
