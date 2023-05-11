@@ -20,14 +20,14 @@ class Roles(models.Model):
 class Users(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=50)
-    roleId = models.ForeignKey(Roles)
+    roleId = models.ForeignKey(Roles, on_delete=models.CASCADE, related_name="users")
 
 class Requests(models.Model):
     id = models.IntegerField(primary_key=True)
     requestTime = models.DateTimeField()
-    requesterId = models.ForeignKey(Users)
-    verifierId = models.ForeignKey(Users)
-    clientConfigId = models.ForeignKey(ClientConfigurations)
+    requesterId = models.ForeignKey(Users, on_delete=models.CASCADE, related_name="requester_requests")
+    verifierId = models.ForeignKey(Users, on_delete=models.CASCADE, related_name="verifier_requests")
+    clientConfigId = models.ForeignKey(ClientConfigurations, on_delete=models.CASCADE, related_name="requests")
     grossAmountToleranceTo = models.FloatField()
     commisionToleanceTo = models.FloatField()
 
@@ -35,10 +35,10 @@ class AuditLogs(models.Model):
     id = models.IntegerField(primary_key=True)
     createdAt = models.DateTimeField()
     statusId = models.IntegerField()
-    requestId = models.ForeignKey(Requests)
-    requesterId = models.ForeignKey(Users)
-    verifierId = models.ForeignKey(Users)
-    clientConfigId = models.ForeignKey(ClientConfigurations)
+    requestId = models.ForeignKey(Requests, on_delete=models.CASCADE, related_name="audit_logs")
+    requesterId = models.ForeignKey(Users, on_delete=models.CASCADE, related_name="requester_audit_logs")
+    verifierId = models.ForeignKey(Users, on_delete=models.CASCADE, related_name="verifier_audit_logs")
+    clientConfigId = models.ForeignKey(ClientConfigurations, on_delete=models.CASCADE, related_name="audit_logs")
     grossAmountToleranceFrom = models.FloatField()
     grossAmountToleranceTo = models.FloatField()
     commisionToleranceFrom = models.FloatField()
