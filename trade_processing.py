@@ -1,12 +1,15 @@
 ## Trade processing engine CLI
 
-def getClientConfig(clientId) -> tuple[float, float]:
+def getClientConfig(clientId) -> tuple[float, float] | None:
     # query client config tool for client's commisionDifferenceTolerance and grossAmountDifferenceTolerance
     return (1.1, 2.1)
 
 def processUserInput(clientId, commisionDifference, grossAmountDifference) -> bool:
     # query client config tool for client's commisionDifferenceTolerance and grossAmountDifferenceTolerance
-    commDiffTolerance, grossDiffTolerance = getClientConfig(clientId)
+    tpl = getClientConfig(clientId)
+    if tpl is None:
+        return False
+    commDiffTolerance, grossDiffTolerance = tpl
     return commisionDifference <= commDiffTolerance and grossAmountDifference <= grossDiffTolerance
 
 if __name__ == "__main__":
