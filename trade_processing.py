@@ -1,5 +1,9 @@
 import requests
 
+from codetoconnect.client_configuration_tool.models import Users
+from codetoconnect.client_configuration_tool.client_config_change import clientConfigChangeRequest
+from database_enums import Request_Statuses
+
 ## Trade processing engine CLI
 
 def getClientConfig(clientId) -> tuple[float, float] | None:
@@ -31,4 +35,6 @@ if __name__ == "__main__":
             print("Trade accepted")
         else:
             print("Trade rejected")
+    # Users.create(name="user1", roleId=None)
+    # clientConfigChangeRequest(1, 1, 1, 1)
 
