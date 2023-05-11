@@ -1,9 +1,16 @@
+import requests
+
 ## Trade processing engine CLI
 
 def getClientConfig(clientId) -> tuple[float, float] | None:
     # query client config tool for client's commisionDifferenceTolerance and grossAmountDifferenceTolerance
     # TODO: send http get request to get client config based on clientId
-    return (1.1, 2.1)
+    response = requests.get("http://127.0.0.1:8000/client_configuration_tool/api?client_id=" + clientId)
+    print(response)
+    if response.status_code != 200:
+        return None
+    print(response.json())
+    return response.json()["commission_difference_tolerance"], response.json()["gross_amount_difference_tolerance"]
 
 def processUserInput(clientId, commisionDifference, grossAmountDifference) -> bool:
     # query client config tool for client's commisionDifferenceTolerance and grossAmountDifferenceTolerance
